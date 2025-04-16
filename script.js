@@ -19,11 +19,13 @@ const submitVerificationButton = document.getElementById('submit-verification-bu
 const verificationStatus = document.getElementById('verification-status');
 const timerDisplay = document.getElementById('timer');
 const closeModalButton = document.getElementById('close-modal-button');
+console.log("DOM elements selected");
 
 // --- State Variables ---
 let currentSubmissionId = null;
 let timerInterval = null;
 let timeLeft = VERIFICATION_TIMEOUT_SECONDS;
+console.log("State variables initialized");
 
 // --- Functions ---
 
@@ -53,6 +55,7 @@ function hideStatus(element) {
  * @param {Event} event - The form submission event.
  */
 async function handleAssignmentSubmit(event) {
+    console.log("handleAssignmentSubmit called");
     event.preventDefault(); // Prevent default form submission
     submitButton.disabled = true;
     hideStatus(submissionStatus);
@@ -93,6 +96,7 @@ async function handleAssignmentSubmit(event) {
  * @param {number} submissionId - The ID of the submission.
  */
 async function triggerQuestionGeneration(submissionId) {
+    console.log(`triggerQuestionGeneration called with ID: ${submissionId}`);
     try {
         const response = await fetch(GENERATE_QUESTION_URL, {
             method: 'POST',
@@ -124,6 +128,7 @@ async function triggerQuestionGeneration(submissionId) {
  * @param {string} question - The question to display.
  */
 function showVerificationPopup(question) {
+    console.log("showVerificationPopup called with question:", question);
     hideStatus(submissionStatus);
     hideStatus(verificationStatus);
     verificationQuestion.textContent = question;
@@ -138,6 +143,7 @@ function showVerificationPopup(question) {
  * Starts the countdown timer for the verification response.
  */
 function startTimer() {
+    console.log("startTimer called");
     timeLeft = VERIFICATION_TIMEOUT_SECONDS;
     timerDisplay.textContent = timeLeft;
     clearInterval(timerInterval); // Clear any existing timer
@@ -166,6 +172,7 @@ function handleTimerEnd() {
  * Handles the submission of the verification response.
  */
 async function handleVerificationSubmit() {
+    console.log("handleVerificationSubmit called");
     clearInterval(timerInterval); // Stop timer on manual submit
     submitVerificationButton.disabled = true;
     showStatus(verificationStatus, 'Submitting verification response...', false);
@@ -233,6 +240,7 @@ function finalizeSubmission(hadIssue = false) {
  * Hides the verification modal and clears the timer.
  */
 function hideVerificationPopup() {
+    console.log("hideVerificationPopup called");
     clearInterval(timerInterval);
     verificationModal.hidden = true;
     // Optionally reset related fields if needed
@@ -241,10 +249,12 @@ function hideVerificationPopup() {
 }
 
 // --- Event Listeners ---
+console.log("Adding event listeners...");
 submissionForm.addEventListener('submit', handleAssignmentSubmit);
 submitVerificationButton.addEventListener('click', handleVerificationSubmit);
 closeModalButton.addEventListener('click', hideVerificationPopup);
+console.log("Event listeners added.");
 
 // --- Initial Setup ---
 // (Could add initialization logic here if needed)
-console.log("ThoughtCaptcha frontend initialized."); 
+console.log("ThoughtCaptcha frontend initialized. Script loaded."); 
