@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThoughtCaptcha - Submit Assignment</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Optional: Add a link to a Canvas-like font if desired -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <h1>Assignment Submission</h1>
+        <p>Course: AI Ethics 101</p>
+    </header>
+
+    <main class="container">
+        <section class="submission-area">
+            <h2>Submit Your Work</h2>
+            <form id="submission-form">
+                <label for="submission-text">Enter your assignment text:</label>
+                <textarea id="submission-text" name="submission-text" rows="10" required placeholder="Paste or type your assignment here..."></textarea>
+                <button type="submit" id="submit-button">Submit Assignment</button>
+            </form>
+            <div id="submission-status" class="status-message" role="alert"></div>
+        </section>
+
+        <!-- Verification Modal (Hidden by default) -->
+        <div id="verification-modal" class="modal" hidden>
+            <div class="modal-content">
+                <h2>Authenticity Check</h2>
+                <p id="verification-question">[Verification question will appear here]</p>
+                <label for="verification-response">Your Response (Time Limit: <span id="timer">60</span>s):</label>
+                <textarea id="verification-response" rows="4" placeholder="Enter your response quickly..."></textarea>
+                <button id="submit-verification-button">Submit Response</button>
+                <div id="verification-status" class="status-message" role="alert"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>ThoughtCaptcha Verification System</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
