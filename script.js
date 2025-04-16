@@ -113,7 +113,7 @@ function showVerificationPopup(question) {
     verificationQuestion.textContent = question;
     verificationResponse.value = ''; // Clear previous response
     submitVerificationButton.disabled = false;
-    verificationModal.hidden = false;
+    verificationModal.style.display = 'flex';
     verificationResponse.focus();
     startTimer();
 }
@@ -184,7 +184,7 @@ async function handleVerificationSubmit() {
         showStatus(verificationStatus, data.message || 'Verification successful!');
         // Wait a bit before hiding the modal and finalizing
         setTimeout(() => {
-            verificationModal.hidden = true;
+            verificationModal.style.display = 'none';
             finalizeSubmission();
         }, 2000); // Show success message for 2 seconds
 
@@ -193,7 +193,7 @@ async function handleVerificationSubmit() {
         showStatus(verificationStatus, `Error submitting verification: ${error.message}`, true);
         // Decide if submission should still be finalized despite verification error
         setTimeout(() => {
-            verificationModal.hidden = true;
+            verificationModal.style.display = 'none';
              finalizeSubmission(true); // Finalize but indicate issue
         }, 3000); // Show error longer
     }
@@ -221,7 +221,11 @@ function finalizeSubmission(hadIssue = false) {
 function hideVerificationPopup() {
     console.log("hideVerificationPopup called");
     clearInterval(timerInterval);
-    verificationModal.hidden = true;
+    if (verificationModal) {
+        verificationModal.style.display = 'none';
+    } else {
+        console.error("Cannot hide modal, verificationModal not found!");
+    }
     // Optionally reset related fields if needed
     // verificationResponse.value = '';
     // hideStatus(verificationStatus);
@@ -274,11 +278,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Initial Setup (Run *after* DOM is ready) ---
     console.log("ThoughtCaptcha frontend initialized. DOM ready."); // DEBUG
 
-    // Ensure modal is hidden initially (as a safeguard, though HTML should handle it)
+    // Explicitly hide at start of DOMContentLoaded
     if (verificationModal) {
-        verificationModal.hidden = true;
+        console.log("Explicitly hiding modal at DOMContentLoaded start.");
+        verificationModal.style.display = 'none';
     } else {
-        console.error("Verification modal element not found!");
+        console.error("Cannot hide modal at start, verificationModal not found!");
+    }
+
+    // Ensure modal is hidden initially (using style.display)
+    if (verificationModal) {
+        verificationModal.style.display = 'none';
+        console.log("Modal display style after final check:", window.getComputedStyle(verificationModal).display); // Log computed style
+    } else {
+        console.error("Verification modal element not found at end of init!");
     }
 
 }); // End of DOMContentLoaded listener
