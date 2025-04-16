@@ -6,27 +6,7 @@ const GENERATE_QUESTION_URL = `${API_BASE_URL}/generate-question`;
 const VERIFY_RESPONSE_URL = `${API_BASE_URL}/verify-response`;
 const VERIFICATION_TIMEOUT_SECONDS = 60; // Match the desired timer
 
-// --- DOM Elements ---
-const submissionForm = document.getElementById('submission-form');
-const submissionText = document.getElementById('submission-text');
-const submitButton = document.getElementById('submit-button');
-const submissionStatus = document.getElementById('submission-status');
-
-const verificationModal = document.getElementById('verification-modal');
-const verificationQuestion = document.getElementById('verification-question');
-const verificationResponse = document.getElementById('verification-response');
-const submitVerificationButton = document.getElementById('submit-verification-button');
-const verificationStatus = document.getElementById('verification-status');
-const timerDisplay = document.getElementById('timer');
-const closeModalButton = document.getElementById('close-modal-button');
-
-// --- State Variables ---
-let currentSubmissionId = null;
-let timerInterval = null;
-let timeLeft = VERIFICATION_TIMEOUT_SECONDS;
-console.log("State variables initialized");
-
-// --- Functions ---
+// --- Function Definitions ---
 
 /**
  * Displays status messages to the user.
@@ -247,13 +227,60 @@ function hideVerificationPopup() {
     // hideStatus(verificationStatus);
 }
 
-// --- Event Listeners ---
-console.log("Adding event listeners...");
-submissionForm.addEventListener('submit', handleAssignmentSubmit);
-submitVerificationButton.addEventListener('click', handleVerificationSubmit);
-closeModalButton.addEventListener('click', hideVerificationPopup);
-console.log("Event listeners added.");
+// --- Main Execution (waits for DOM) ---
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOMContentLoaded event fired"); // DEBUG
 
-// --- Initial Setup ---
-// (Could add initialization logic here if needed)
-console.log("ThoughtCaptcha frontend initialized. Script loaded."); 
+    // --- DOM Elements (Select elements *after* DOM is ready) ---
+    const submissionForm = document.getElementById('submission-form');
+    const submissionText = document.getElementById('submission-text');
+    const submitButton = document.getElementById('submit-button');
+    const submissionStatus = document.getElementById('submission-status');
+
+    const verificationModal = document.getElementById('verification-modal');
+    const verificationQuestion = document.getElementById('verification-question');
+    const verificationResponse = document.getElementById('verification-response');
+    const submitVerificationButton = document.getElementById('submit-verification-button');
+    const verificationStatus = document.getElementById('verification-status');
+    const timerDisplay = document.getElementById('timer');
+    const closeModalButton = document.getElementById('close-modal-button');
+    console.log("DOM elements selected"); // DEBUG
+
+    // --- State Variables (Initialize *after* DOM is ready if they depend on elements, otherwise can be global) ---
+    let currentSubmissionId = null;
+    let timerInterval = null;
+    let timeLeft = VERIFICATION_TIMEOUT_SECONDS;
+    console.log("State variables initialized"); // DEBUG
+
+    // --- Event Listeners (Attach *after* DOM is ready and elements are selected) ---
+    console.log("Adding event listeners..."); // DEBUG
+    if (submissionForm) {
+        submissionForm.addEventListener('submit', handleAssignmentSubmit);
+    } else {
+        console.error("Submission form not found!");
+    }
+    if (submitVerificationButton) {
+        submitVerificationButton.addEventListener('click', handleVerificationSubmit);
+    } else {
+        console.error("Submit verification button not found!");
+    }
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', hideVerificationPopup);
+    } else {
+        console.error("Close modal button not found!");
+    }
+    console.log("Event listeners added."); // DEBUG
+
+    // --- Initial Setup (Run *after* DOM is ready) ---
+    console.log("ThoughtCaptcha frontend initialized. DOM ready."); // DEBUG
+
+    // Ensure modal is hidden initially (as a safeguard, though HTML should handle it)
+    if (verificationModal) {
+        verificationModal.hidden = true;
+    } else {
+        console.error("Verification modal element not found!");
+    }
+
+}); // End of DOMContentLoaded listener
+
+console.log("Script file loaded (waiting for DOMContentLoaded)..."); // DEBUG (This log runs immediately) 
