@@ -1,0 +1,47 @@
+/* teacher.css - Styles specific to the teacher dashboard */
+
+.prompt-management {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.submissions-view h2 {
+    margin-bottom: 1rem;
+}
+
+.submission-entry {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.submission-entry h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.1em;
+    color: #0056b3;
+}
+
+.submission-entry p {
+    margin: 0.5rem 0;
+    white-space: pre-wrap; /* Preserve whitespace/newlines in content */
+    word-wrap: break-word; /* Break long words */
+}
+
+.submission-entry strong {
+    color: #333;
+}
+
+.submission-entry .meta {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+#submissions-list {
+    max-height: 600px; /* Limit height and make scrollable if needed */
+    overflow-y: auto;
+} 

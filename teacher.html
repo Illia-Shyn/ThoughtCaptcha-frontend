@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThoughtCaptcha - Teacher View</title>
+    <link rel="stylesheet" href="style.css"> <!-- Reuse main style -->
+    <link rel="stylesheet" href="teacher.css"> <!-- Add specific teacher styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <h1>ThoughtCaptcha - Teacher Dashboard</h1>
+        <p>Manage Prompts & View Submissions</p>
+        <p><a href="index.html">Back to Submission Page</a></p>
+    </header>
+
+    <main class="container">
+        <section class="prompt-management">
+            <h2>System Prompt Management</h2>
+            <form id="prompt-form">
+                <label for="system-prompt-text">Current System Prompt for Generating Questions:</label>
+                <textarea id="system-prompt-text" name="system-prompt-text" rows="6" required placeholder="Loading prompt..."></textarea>
+                <button type="submit" id="update-prompt-button">Update Prompt</button>
+            </form>
+            <div id="prompt-status" class="status-message" role="alert"></div>
+        </section>
+
+        <section class="submissions-view">
+            <h2>Submissions</h2>
+            <div id="submissions-list">
+                <p>Loading submissions...</p>
+                <!-- Submissions will be loaded here by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>ThoughtCaptcha Verification System</p>
+    </footer>
+
+    <script src="teacher.js"></script>
+</body>
+</html> 
