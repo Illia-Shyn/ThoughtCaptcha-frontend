@@ -121,7 +121,8 @@ button:disabled {
     height: 100%;
     overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity (dim background) */
-    display: flex; /* Use flexbox for centering */
+    display: none; /* Initially hide the modal via CSS */
+    /* display: flex; Use flexbox for centering - now set by JS */
     justify-content: center;
     align-items: center;
 }
