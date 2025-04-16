@@ -29,6 +29,38 @@ function hideStatus(element) {
     }
 }
 
+/**
+ * Creates an expandable content element with a show more/less button
+ */
+function createExpandableContent(content, id, type) {
+    const container = document.createElement('div');
+    
+    const contentElement = document.createElement('pre');
+    contentElement.id = `content-${type}-${id}`;
+    contentElement.className = 'content-truncated';
+    contentElement.textContent = content || 'N/A';
+    container.appendChild(contentElement);
+    
+    const button = document.createElement('button');
+    button.className = 'expand-button';
+    button.textContent = 'Show More';
+    button.onclick = function() {
+        const contentEl = document.getElementById(`content-${type}-${id}`);
+        if (contentEl.classList.contains('content-truncated')) {
+            contentEl.classList.remove('content-truncated');
+            contentEl.classList.add('content-full');
+            button.textContent = 'Show Less';
+        } else {
+            contentEl.classList.remove('content-full');
+            contentEl.classList.add('content-truncated');
+            button.textContent = 'Show More';
+        }
+    };
+    container.appendChild(button);
+    
+    return container;
+}
+
 // --- Main Teacher Page Logic ---
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Teacher page DOMContentLoaded");
@@ -126,16 +158,34 @@ document.addEventListener('DOMContentLoaded', function() {
             submissions.forEach(sub => {
                 const entry = document.createElement('div');
                 entry.className = 'submission-entry';
-                entry.innerHTML = `
-                    <h3>Submission ID: ${sub.id}</h3>
-                    <p><strong>Submitted At:</strong> <span class="meta">${formatDate(sub.created_at)}</span></p>
-                    <p><strong>Original Content:</strong></p>
-                    <pre>${sub.original_content || 'N/A'}</pre>
-                    <p><strong>Generated Question:</strong></p>
-                    <pre>${sub.generated_question || 'N/A'}</pre>
-                    <p><strong>Student Response:</strong></p>
-                    <pre>${sub.student_response || 'N/A'}</pre>
-                `;
+                
+                // Create the header and metadata
+                const header = document.createElement('h3');
+                header.textContent = `Submission ID: ${sub.id}`;
+                entry.appendChild(header);
+                
+                const dateP = document.createElement('p');
+                dateP.innerHTML = `<strong>Submitted At:</strong> <span class="meta">${formatDate(sub.created_at)}</span>`;
+                entry.appendChild(dateP);
+                
+                // Original content with expandable functionality
+                const origContentP = document.createElement('p');
+                origContentP.innerHTML = `<strong>Original Content:</strong>`;
+                entry.appendChild(origContentP);
+                entry.appendChild(createExpandableContent(sub.original_content, sub.id, 'original'));
+                
+                // Generated question with expandable functionality
+                const questionP = document.createElement('p');
+                questionP.innerHTML = `<strong>Generated Question:</strong>`;
+                entry.appendChild(questionP);
+                entry.appendChild(createExpandableContent(sub.generated_question, sub.id, 'question'));
+                
+                // Student response with expandable functionality
+                const responseP = document.createElement('p');
+                responseP.innerHTML = `<strong>Student Response:</strong>`;
+                entry.appendChild(responseP);
+                entry.appendChild(createExpandableContent(sub.student_response, sub.id, 'response'));
+                
                 submissionsListDiv.appendChild(entry);
             });
 
