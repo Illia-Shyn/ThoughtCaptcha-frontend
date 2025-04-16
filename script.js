@@ -18,6 +18,7 @@ const verificationResponse = document.getElementById('verification-response');
 const submitVerificationButton = document.getElementById('submit-verification-button');
 const verificationStatus = document.getElementById('verification-status');
 const timerDisplay = document.getElementById('timer');
+const closeModalButton = document.getElementById('close-modal-button');
 
 // --- State Variables ---
 let currentSubmissionId = null;
@@ -228,9 +229,21 @@ function finalizeSubmission(hadIssue = false) {
     currentSubmissionId = null;
 }
 
+/**
+ * Hides the verification modal and clears the timer.
+ */
+function hideVerificationPopup() {
+    clearInterval(timerInterval);
+    verificationModal.hidden = true;
+    // Optionally reset related fields if needed
+    // verificationResponse.value = '';
+    // hideStatus(verificationStatus);
+}
+
 // --- Event Listeners ---
 submissionForm.addEventListener('submit', handleAssignmentSubmit);
 submitVerificationButton.addEventListener('click', handleVerificationSubmit);
+closeModalButton.addEventListener('click', hideVerificationPopup);
 
 // --- Initial Setup ---
 // (Could add initialization logic here if needed)
