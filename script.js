@@ -19,7 +19,6 @@ const submitVerificationButton = document.getElementById('submit-verification-bu
 const verificationStatus = document.getElementById('verification-status');
 const timerDisplay = document.getElementById('timer');
 const closeModalButton = document.getElementById('close-modal-button');
-console.log("DOM elements selected");
 
 // --- State Variables ---
 let currentSubmissionId = null;
