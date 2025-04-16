@@ -68,6 +68,22 @@
     overflow: visible;
 }
 
+/* Ensure proper text wrapping in pre elements */
+.submission-entry pre {
+    white-space: pre-wrap;       /* Preserve line breaks but wrap text */
+    word-wrap: break-word;       /* Break long words */
+    overflow-wrap: break-word;   /* Allow breaking of words */
+    width: 100%;                 /* Full width of container */
+    max-width: 100%;             /* Ensure it doesn't exceed container */
+    overflow-x: hidden;          /* Hide horizontal scrolling */
+    font-family: inherit;        /* Use the same font as the rest of the content */
+    background-color: #f5f5f5;   /* Light background to distinguish content */
+    padding: 8px;                /* Add some padding */
+    border-radius: 4px;          /* Rounded corners */
+    font-size: 0.95em;           /* Slightly smaller font */
+    margin: 0;                   /* Remove default margin */
+}
+
 .expand-button {
     margin-top: 5px;
     background-color: #e7f3ff;
