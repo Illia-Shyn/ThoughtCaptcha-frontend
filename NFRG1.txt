@@ -1,0 +1,134 @@
+New feature reference guide frontend.
+# ThoughtCaptcha Frontend Enhancement: Display Assignment & Integrate
+
+**Goal:** Modify the frontend to fetch and display the current assignment prompt on the student submission page. Allow teachers to create and manage assignment prompts on the teacher dashboard. Send the relevant assignment context with the student submission.
+
+**Context:** I have an HTML/CSS/JS frontend.
+- `index.html`: Student submission page.
+- `script.js`: Logic for student submission page (API calls, modal handling).
+- `teacher.html`: Teacher dashboard page.
+- `teacher.js`: Logic for teacher dashboard (fetching submissions, updating system prompt).
+- `style.css`, `teacher.css`: Stylesheets.
+The backend API base URL is defined in `script.js` and `teacher.js` (`API_BASE_URL`). New backend endpoints for assignments are available at `/api/assignments`, `/api/assignments/current`, etc.
+
+**Tasks:**
+
+1.  **Teacher Dashboard (`teacher.html`, `teacher.js`, `teacher.css`):**
+    *   **UI (`teacher.html`):**
+        *   Add a new `<section>` for "Assignment Management", similar to the "System Prompt Management" section.
+        *   Inside this section, add:
+            *   An `<h2>` title (e.g., "Assignment Prompt Management").
+            *   A `<form id="assignment-form">`.
+            *   A `<label for="assignment-prompt-text">` (e.g., "Create/Edit Assignment Prompt:").
+            *   A `<textarea id="assignment-prompt-text" rows="6">`.
+            *   A `<button type="submit" id="save-assignment-button">` (e.g., "Save New Assignment").
+            *   *(Optional: Add elements to display/edit existing assignments, maybe a list below)*.
+            *   A `<div id="assignment-status" class="status-message">`.
+            *   A separate area/button to display and set the "Current Assignment". Maybe:
+                *   A `<div id="current-assignment-area">` containing:
+                    *   `<p><strong>Current Active Assignment:</strong></p>`
+                    *   `<p id="current-assignment-display">Loading...</p>`
+                *   A list of existing assignments fetched below the creation form, each with a "Set as Current" button.
+    *   **Logic (`teacher.js`):**
+        *   Define new API URLs:
+            ```javascript
+            const ASSIGNMENTS_URL = `${API_BASE_URL}/assignments`;
+            const CURRENT_ASSIGNMENT_URL = `${API_BASE_URL}/assignments/current`;
+            // Add URLs for PUT/POST specific assignments if needed
+            ```
+        *   Get new DOM elements for the assignment section (textarea, buttons, status div, display area).
+        *   Create functions:
+            *   `loadCurrentAssignment()`: Fetch from `CURRENT_ASSIGNMENT_URL` (GET) and display the text in `#current-assignment-display`. Handle 404 if none is set.
+            *   `handleSaveAssignment(event)`: Attached to the `assignment-form` submit. Get text from textarea, POST to `ASSIGNMENTS_URL`. Show status in `#assignment-status`. Optionally reload the list of assignments.
+            *   *(Optional: `loadAllAssignments()`: Fetch from `ASSIGNMENTS_URL` (GET) and render a list, perhaps with "Edit" and "Set as Current" buttons for each)*.
+            *   *(Optional: `handleSetCurrentAssignment(assignmentId)`: Attached to "Set as Current" buttons. Call the backend endpoint (e.g., `PUT /api/assignments/{assignmentId}/set-current`). Reload the current assignment display after success.)*
+        *   Call `loadCurrentAssignment()` (and optionally `loadAllAssignments()`) when the page loads (inside `DOMContentLoaded`).
+        *   Add event listeners for the save button and any "Set as Current" buttons.
+    *   **Styling (`teacher.css`):** Add styles for the new assignment management section to match the rest of the page.
+    *   **Action:** Implement the UI changes in `teacher.html`, add the corresponding JS logic and API calls in `teacher.js`, and style in `teacher.css`.
+
+2.  **Student Submission Page (`index.html`, `script.js`):**
+    *   **UI (`index.html`):**
+        *   Locate the `submission-area` section.
+        *   Replace the static `<h2>Submit Your Work</h2>` with a dynamic element: `<h2 id="assignment-title">Loading Assignment...</h2>`.
+        *   Replace the static `<label for="submission-text">Enter your assignment text:</label>` with a dynamic one related to the assignment: `<label for="submission-text" id="assignment-prompt-label">Your Response:</label>`. You might want to display the actual assignment prompt clearly *above* the textarea. Add a new element for this: `<div id="assignment-prompt-display" style="margin-bottom: 1rem; padding: 10px; background-color: #e9ecef; border-radius: 4px;">Loading assignment prompt...</div>`
+    *   **Logic (`script.js`):**
+        *   Define the URL for the current assignment:
+            ```javascript
+            const CURRENT_ASSIGNMENT_URL = `${API_BASE_URL}/assignments/current`; // Assuming API_BASE_URL is already defined
+            ```
+        *   Get new DOM elements: `#assignment-title`, `#assignment-prompt-display`.
+        *   Add a state variable to store the current assignment ID: `let currentAssignmentId = null;`
+        *   Create a function `loadAndDisplayCurrentAssignment()`:
+            *   Fetch from `CURRENT_ASSIGNMENT_URL` (GET).
+            *   On success:
+                *   Update `#assignment-title` (e.g., "Assignment").
+                *   Display the fetched assignment `prompt_text` inside `#assignment-prompt-display`.
+                *   Update the label `#assignment-prompt-label` if needed (e.g., "Your Response to the Assignment Above:").
+                *   Store the fetched assignment's `id` in the `currentAssignmentId` variable.
+            *   On error (e.g., 404 Not Found):
+                *   Display fallback text in `#assignment-title` ("Submit Your Work").
+                *   Hide or show fallback text in `#assignment-prompt-display` ("No specific assignment prompt is currently active.").
+                *   Set `currentAssignmentId = null;`.
+        *   Call `loadAndDisplayCurrentAssignment()` inside the `DOMContentLoaded` event listener.
+        *   Modify `handleAssignmentSubmit(event)`:
+            *   When creating the JSON payload to send to the backend (`SUBMIT_ASSIGNMENT_URL`), include the `currentAssignmentId`.
+                ```javascript
+                // Inside handleAssignmentSubmit, before fetch
+                const content = submissionText.value;
+                const payload = {
+                    original_content: content,
+                    assignment_id: currentAssignmentId // Add this line
+                    // If backend uses Option A (direct text), you'd need to store the text instead of ID
+                    // assignment_prompt_text: currentAssignmentPromptText // (requires storing text)
+                };
+
+                // Send the payload
+                const response = await fetch(SUBMIT_ASSIGNMENT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload), // Use the new payload
+                });
+                // ... rest of the function ...
+                ```
+    *   **Action:** Implement the UI changes in `index.html` and add/modify the necessary JavaScript logic in `script.js` to fetch, display, and submit the assignment context.
+
+**Testing:**
+    *   Load the teacher page. Create an assignment and set it as current.
+    *   Reload the teacher page. Verify the current assignment is shown.
+    *   Load the student page. Verify the correct assignment prompt is displayed above the textarea.
+    *   Submit a response on the student page.
+    *   Go back to the teacher page and check the submissions list. Verify the new submission includes the correct assignment prompt text (or ID).
+    *   Trigger the verification for the new submission (if the follow-up question generation is automatic or manually triggered). Check if the generated question makes sense in the context of *both* the assignment and the response.
+    *   Test the case where no assignment is set as current on the teacher page. Does the student page show a fallback message? Can the student still submit?
+
+## Implementation Notes
+
+The frontend implementation for the Assignment Prompt Integration feature has been completed according to the guidelines above. Here's what was implemented:
+
+1. **Teacher Dashboard (`teacher.html`, `teacher.js`, `teacher.css`):**
+   - Added a new assignment management section with a form to create assignments 
+   - Implemented display of the current active assignment
+   - Added a list of all assignments with the ability to set an assignment as current
+   - Added styles to match the existing dashboard design
+   - Implemented all required JavaScript functionality including:
+     - Creating new assignments
+     - Listing all assignments
+     - Displaying and refreshing the current assignment
+     - Setting an assignment as current
+     - Showing assignment info in the submissions list
+
+2. **Student Submission Page (`index.html`, `script.js`, `style.css`):**
+   - Updated the UI to display the current assignment prompt
+   - Added logic to fetch the current assignment on page load
+   - Modified the submission handling to include the assignment ID
+   - Added proper styling for the assignment display
+   - Implemented appropriate fallback behavior when no assignment is active
+
+3. **Integration with Backend:**
+   - Connected to the newly implemented backend endpoints
+   - Ensured proper data flow between frontend and backend
+   - Verified that submissions include assignment context
+   - Made sure the LLM question generation can use both assignment and response
+
+The frontend now fully supports the assignment workflow, from creating assignments on the teacher dashboard to displaying them on the student page and including them with submissions. This creates a more realistic classroom experience and provides better context for the follow-up question generation.

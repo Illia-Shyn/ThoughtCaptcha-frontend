@@ -28,6 +28,29 @@
             <div id="prompt-status" class="status-message" role="alert"></div>
         </section>
 
+        <section class="assignment-management">
+            <h2>Assignment Prompt Management</h2>
+            <form id="assignment-form">
+                <label for="assignment-prompt-text">Create/Edit Assignment Prompt:</label>
+                <textarea id="assignment-prompt-text" name="assignment-prompt-text" rows="6" required placeholder="Enter new assignment prompt..."></textarea>
+                <button type="submit" id="save-assignment-button">Save New Assignment</button>
+            </form>
+            <div id="assignment-status" class="status-message" role="alert"></div>
+            
+            <div id="current-assignment-area">
+                <p><strong>Current Active Assignment:</strong></p>
+                <p id="current-assignment-display">Loading...</p>
+                <button id="refresh-current-button" type="button" class="secondary-button">Refresh</button>
+            </div>
+
+            <div id="assignments-list-container">
+                <h3>All Assignments</h3>
+                <div id="assignments-list">
+                    <p>Loading assignments...</p>
+                </div>
+            </div>
+        </section>
+
         <section class="submissions-view">
             <h2>Submissions</h2>
             <div id="submissions-list">

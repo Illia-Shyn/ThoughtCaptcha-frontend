@@ -4,6 +4,7 @@ const API_BASE_URL = 'https://thoughtcaptcha-backend-production.up.railway.app/a
 const SUBMIT_ASSIGNMENT_URL = `${API_BASE_URL}/submit-assignment`;
 const GENERATE_QUESTION_URL = `${API_BASE_URL}/generate-question`;
 const VERIFY_RESPONSE_URL = `${API_BASE_URL}/verify-response`;
+const CURRENT_ASSIGNMENT_URL = `${API_BASE_URL}/assignments/current`;
 const VERIFICATION_TIMEOUT_SECONDS = 60; // Match the desired timer
 
 // --- Utility Function Definitions (Can stay outside) ---
@@ -53,15 +54,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const verificationStatus = document.getElementById('verification-status');
     const timerDisplay = document.getElementById('timer');
     const closeModalButton = document.getElementById('close-modal-button');
+    const assignmentTitle = document.getElementById('assignment-title');
+    const assignmentPromptDisplay = document.getElementById('assignment-prompt-display');
+    const assignmentPromptLabel = document.getElementById('assignment-prompt-label');
     console.log("DOM elements selected"); // DEBUG
 
     // --- State Variables ---
     let currentSubmissionId = null;
+    let currentAssignmentId = null;
     let timerInterval = null;
     let timeLeft = VERIFICATION_TIMEOUT_SECONDS;
     console.log("State variables initialized"); // DEBUG
 
     // --- Core Function Definitions (Defined *inside* DOMContentLoaded) ---
+
+    /**
+     * Loads and displays the current assignment
+     */
+    async function loadAndDisplayCurrentAssignment() {
+        try {
+            assignmentTitle.textContent = "Loading Assignment...";
+            assignmentPromptDisplay.textContent = "Loading assignment prompt...";
+            
+            const response = await fetch(CURRENT_ASSIGNMENT_URL);
+            
+            if (response.status === 404) {
+                // No current assignment set
+                assignmentTitle.textContent = "Submit Your Work";
+                assignmentPromptDisplay.textContent = "No specific assignment prompt is currently active.";
+                assignmentPromptLabel.textContent = "Enter your submission:";
+                currentAssignmentId = null;
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch current assignment: ${response.status} ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            assignmentTitle.textContent = "Assignment";
+            assignmentPromptDisplay.textContent = data.prompt_text;
+            assignmentPromptLabel.textContent = "Your Response to the Assignment Above:";
+            currentAssignmentId = data.id;
+            
+        } catch (error) {
+            console.error("Error loading current assignment:", error);
+            assignmentTitle.textContent = "Submit Your Work";
+            assignmentPromptDisplay.textContent = "Error loading assignment: " + error.message;
+            assignmentPromptLabel.textContent = "Enter your submission:";
+            currentAssignmentId = null;
+        }
+    }
 
     async function handleAssignmentSubmit(event) {
         console.log("handleAssignmentSubmit called"); // DEBUG
@@ -72,9 +115,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         submitButton.disabled = true;
         hideStatus(submissionStatus);
-        showStatus(submissionStatus, 'Submitting assignment...', false);
+        showStatus(submissionStatus, 'Submitting response...', false);
 
         const content = submissionText.value;
+        
+        // Include the assignment ID in the payload if it exists
+        const payload = {
+            original_content: content,
+            assignment_id: currentAssignmentId // This will be null if no assignment is active
+        };
 
         try {
             const response = await fetch(SUBMIT_ASSIGNMENT_URL, {
@@ -82,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ original_content: content }),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -98,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Submission error:', error);
-            showStatus(submissionStatus, `Error submitting assignment: ${error.message}`, true);
+            showStatus(submissionStatus, `Error submitting response: ${error.message}`, true);
             submitButton.disabled = false; // Re-enable button on error
         }
     }
@@ -198,85 +247,78 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     submission_id: currentSubmissionId,
-                    student_response: responseText,
+                    student_response: responseText
                 }),
             });
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ detail: 'Unknown error verifying response.' }));
                 throw new Error(`Verification submission failed: ${response.status} ${response.statusText}. ${errorData.detail || ''}`);
             }
-            const data = await response.json();
-            showStatus(verificationStatus, data.message || 'Verification successful!');
-            setTimeout(() => {
-                hideVerificationPopup();
-                finalizeSubmission();
-            }, 2000);
+
+            showStatus(verificationStatus, 'Verification response submitted successfully!');
+            finalizeSubmission();
+            
         } catch (error) {
             console.error('Verification submission error:', error);
             showStatus(verificationStatus, `Error submitting verification: ${error.message}`, true);
-            submitVerificationButton.disabled = false; // Re-enable button on error
-            setTimeout(() => {
-                hideVerificationPopup();
-                finalizeSubmission(true);
-            }, 3000);
+            submitVerificationButton.disabled = false; // Re-enable in case they want to retry
         }
     }
 
     function finalizeSubmission(hadIssue = false) {
-        console.log(`finalizeSubmission called (hadIssue: ${hadIssue})`); // DEBUG
-        if (!submissionStatus || !submissionText || !submitButton) {
-            console.error("Required elements missing for finalizing submission.");
-            return;
-        }
-        if (hadIssue) {
-             showStatus(submissionStatus, 'Assignment submitted, but there was an issue during verification. Please contact support if needed.', true);
-        } else {
-            showStatus(submissionStatus, 'Assignment and verification submitted successfully!');
-        }
-        submissionText.value = '';
-        submitButton.disabled = false;
-        currentSubmissionId = null;
+        console.log(`finalizeSubmission called, hadIssue: ${hadIssue}`); // DEBUG
+        setTimeout(() => {
+            if (verificationModal) {
+                hideVerificationPopup();
+            }
+            
+            // Reset the form
+            if (submissionForm) {
+                submissionForm.reset();
+            }
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+            
+            // Show a final submission status
+            if (submissionStatus) {
+                let message = 'Submission and verification complete!';
+                if (hadIssue) {
+                    message = 'Submission complete, but there were issues with verification.';
+                }
+                showStatus(submissionStatus, message, hadIssue);
+            }
+        }, 3000); // Short delay to allow reading the verification status
     }
 
     function hideVerificationPopup() {
         console.log("hideVerificationPopup called"); // DEBUG
-        clearInterval(timerInterval); // This should now work as timerInterval is in the same scope
         if (verificationModal) {
             verificationModal.style.display = 'none';
-        } else {
-            console.error("Cannot hide modal, verificationModal not found!");
         }
     }
 
     // --- Event Listeners ---
-    console.log("Adding event listeners..."); // DEBUG
-    // Add checks to ensure elements exist before adding listeners
     if (submissionForm) {
         submissionForm.addEventListener('submit', handleAssignmentSubmit);
     } else {
-        console.error("Submission form not found! Cannot add listener.");
+        console.error("Submission form not found!");
     }
+
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', () => {
+            hideVerificationPopup();
+            // If they manually close without responding, consider it an issue
+            finalizeSubmission(true);
+        });
+    }
+
     if (submitVerificationButton) {
         submitVerificationButton.addEventListener('click', handleVerificationSubmit);
-    } else {
-        console.error("Submit verification button not found! Cannot add listener.");
-    }
-    if (closeModalButton) {
-        closeModalButton.addEventListener('click', hideVerificationPopup);
-    } else {
-        console.error("Close modal button not found! Cannot add listener.");
-    }
-    console.log("Event listeners added."); // DEBUG
-
-    // --- Initial Setup ---
-    console.log("ThoughtCaptcha frontend initialized. DOM ready."); // DEBUG
-    if (verificationModal) {
-        verificationModal.style.display = 'none';
-        console.log("Modal display style after final check:", window.getComputedStyle(verificationModal).display);
-    } else {
-        console.error("Verification modal element not found at end of init!");
     }
 
-}); // End of DOMContentLoaded listener
-
-console.log("Script file loaded (waiting for DOMContentLoaded)..."); // DEBUG 
+    // Initial load
+    loadAndDisplayCurrentAssignment();
+    console.log("Script initialization complete");
+}); 
