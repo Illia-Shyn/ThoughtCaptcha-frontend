@@ -18,11 +18,12 @@
 
     <main class="container">
         <section class="submission-area">
-            <h2>Submit Your Work</h2>
+            <h2 id="assignment-title">Loading Assignment...</h2>
+            <div id="assignment-prompt-display">Loading assignment prompt...</div>
             <form id="submission-form">
-                <label for="submission-text">Enter your assignment text:</label>
-                <textarea id="submission-text" name="submission-text" rows="10" required placeholder="Paste or type your assignment here..."></textarea>
-                <button type="submit" id="submit-button">Submit Assignment</button>
+                <label for="submission-text" id="assignment-prompt-label">Your Response:</label>
+                <textarea id="submission-text" name="submission-text" rows="10" required placeholder="Type your response to the assignment above..."></textarea>
+                <button type="submit" id="submit-button">Submit Response</button>
             </form>
             <div id="submission-status" class="status-message" role="alert"></div>
         </section>
