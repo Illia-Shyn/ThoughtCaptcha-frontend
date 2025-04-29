@@ -179,4 +179,13 @@ button:disabled {
 #assignment-title {
     color: #0056b3;
     margin-bottom: 0.8rem;
+}
+
+/* Prevent text selection for the verification question */
+#verification-question {
+    user-select: none; /* Standard syntax */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    cursor: default; /* Optional: Visually indicate text isn't selectable */
 } 
